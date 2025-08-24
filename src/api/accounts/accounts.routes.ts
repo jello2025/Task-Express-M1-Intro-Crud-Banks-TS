@@ -7,10 +7,10 @@ import {
 } from "./accounts.controller";
 export const accRouter = Router();
 
-accRouter.get("/accounts", getAllAccounts);
+accRouter.get("/", getAllAccounts);
 
-accRouter.post("/accounts", createAccount);
+accRouter.post("/", createAccount);
 
-accRouter.delete("/accounts/:accountId", deleteAccountById);
+accRouter.delete("/:accountId", deleteAccountById);
 
-accRouter.put("/accounts/:accountId", updateAccountById);
+accRouter.put("/:accountId", updateAccountById);
