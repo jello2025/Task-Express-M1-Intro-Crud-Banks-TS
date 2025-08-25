@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import { accounts } from "../../../accounts";
+import { accounts } from "../../../data/accounts";
 
 export const getAllAccounts = (req: Request, res: Response) => {
-  res.json(accounts);
-  res.status(200);
+  return res.status(200).json(accounts);
 };
 
 export const createAccount = (req: Request, res: Response) => {
