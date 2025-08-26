@@ -1,44 +1,57 @@
 import { Request, Response } from "express";
-import { accounts } from "../../../data/accounts";
+import Account from "../../db/models/Account";
 
-export const getAllAccounts = (req: Request, res: Response) => {
-  return res.status(200).json(accounts);
-};
-
-export const createAccount = (req: Request, res: Response) => {
-  const id: number = accounts.length ? accounts.length + 1 : 1;
-  const funds = 0;
-  const newAcc = { id, funds, ...req.body };
-  accounts.push(newAcc);
-  res.status(201).json(newAcc);
-};
-
-export const deleteAccountById = (req: Request, res: Response) => {
-  const accountId: number = Number(req.params.accountId);
-  console.log("GAHHH‼️‼️", accountId);
-  const account = accounts.find((acc) => acc.id === +accountId);
-  if (!account) {
-    res.status(404).json({
-      message: `couldnt delete account with id ${accountId} cus it doesnt even exist bruh`,
-    });
-  } else {
-    res.sendStatus(204);
+export const getAllAccounts = async (req: Request, res: Response) => {
+  try {
+    const accounts = await Account.find();
+    return res.json(accounts);
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ message: "error" });
   }
 };
 
-export const updateAccountById = (req: Request, res: Response) => {
-  const accountId: number = Number(req.params.accountId);
-  const accountIndex = accounts.findIndex((acc) => acc.id === +accountId);
+export const createAccount = async (req: Request, res: Response) => {
+  try {
+    const account = await Account.create(req.body);
+    return res.status(201).json(account);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+};
 
-  if (accountIndex === -1) {
+export const updateAccountById = async (req: Request, res: Response) => {
+  const { accountId } = req.params;
+
+  try {
+    const foundAcc = await Account.findById(accountId);
+
+    if (foundAcc) {
+      await foundAcc.updateOne(req.body);
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "Account not found" });
+    }
+  } catch (err) {
     return res.status(404).json({
-      message: `couldnt delete account with id ${accountId} cus it doesnt even exist bruh`,
+      message: "Not found",
     });
   }
+};
 
-  accounts[accountIndex] = {
-    ...accounts[accountIndex],
-    ...req.body,
-  };
-  res.json(accounts[accountIndex]);
+export const deleteAccountById = async (req: Request, res: Response) => {
+  const { accountId } = req.params;
+  try {
+    const foundAcc = await Account.findById(accountId);
+    if (foundAcc) {
+      await foundAcc.deleteOne(req.body);
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "Account not found" });
+    }
+  } catch (err) {
+    return res.status(404).json({
+      message: "Not found",
+    });
+  }
 };
